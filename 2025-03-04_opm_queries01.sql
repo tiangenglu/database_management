@@ -83,19 +83,34 @@ ORDER BY
 	OCC_COUNT DESC;
 
 /*show pct, cast the numerator to numeric from bigint*/
-
 SELECT
 	OCC,
 	COUNT(OCC) AS OCC_COUNT,
-	ROUND(
-		CAST(COUNT(OCC) AS NUMERIC) / (
-			SELECT
-				COUNT(*)
-			FROM
-				FACT),4) AS PROP
+	ROUND(CAST(COUNT(OCC) AS NUMERIC) / (SELECTCOUNT(*)FROMFACT),4) AS PROP
 FROM
 	FACT GROUP BY OCC
 ORDER BY
 	PROP DESC;
 
-	
+/* What are the distribution patterns of occupations? (count of job series by agency) */
+CREATE TABLE occ_count_by_agency AS
+SELECT OCC, COUNT(OCC) AS ct, agysub FROM fact GROUP BY OCC, agysub ORDER BY ct DESC;
+
+/* Which are the job series that BLS hires? */
+SELECT * FROM occ_count_by_agency WHERE agysub = 'DLLS';
+/* Which are the job series that BEA hires? */
+SELECT * FROM occ_count_by_agency WHERE agysub = 'CM53';
+
+/* all patent examining headcounts were in PTO*/
+SELECT OCCT, CT, AGYSUBT FROM occ_count_by_agency 
+JOIN occupation USING(OCC)
+JOIN agency USING(agysub)
+WHERE occ = '1224' ;
+
+/* What's the distribution of Data Scientists? */
+/* all patent examining headcounts were in PTO*/
+SELECT OCCT, CT, AGYSUBT FROM occ_count_by_agency 
+JOIN occupation USING(OCC)
+JOIN agency USING(agysub)
+WHERE occ = '1560' ;
+
